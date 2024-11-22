@@ -23,24 +23,15 @@ const engine = new Engine({
   accessToken: process.env.ENGINE_ACCESS_TOKEN as string,
 });
 
-type TransactionStatus = "Queued" | "Sent" | "Mined" | "error";
-
-interface ClaimResult {
-  queueId: string;
-  status: TransactionStatus;
-  transactionHash?: string | undefined | null;
-  blockExplorerUrl?: string | undefined | null;
-  errorMessage?: string;
-  toAddress?: string;
-  amount?: string;
-  chainId?: string;
-  timestamp?: number;
-}
-
 const chain = "84532";
 
 type Receiver = {
   toAddress: Address;
+  amount: string;
+};
+
+type DataEntry = {
+  toAddress: string;
   amount: string;
 };
 
@@ -54,7 +45,7 @@ export async function POST(req: NextRequest) {
       sampleData: data[0],
     });
 
-    const receivers: Receiver[] = data.map((entry: any) => ({
+    const receivers: Receiver[] = data.map((entry: DataEntry) => ({
       toAddress: entry.toAddress as Address,
       amount: entry.amount,
     }));
@@ -79,7 +70,7 @@ export async function POST(req: NextRequest) {
     // Return initial queued status
     const initialResult = {
       queueId: res.result.queueId,
-      status: "Queued" as const,
+      status: "queued" as const,
       addresses: firstChunk.map((r) => r.toAddress),
       amounts: firstChunk.map((r) => r.amount),
       timestamp: Date.now(),
@@ -93,12 +84,14 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json([initialResult]);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Detailed error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
     return NextResponse.json(
       {
         error: "Transfer failed",
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 },
     );
@@ -112,16 +105,20 @@ async function pollToMine(queueId: string) {
     if (status.result.status === "mined") {
       const transactionHash = status.result.transactionHash;
       const blockExplorerUrl = `https://base-sepolia.blockscout.com/tx/${transactionHash}`;
-      return { status: "Mined", transactionHash, blockExplorerUrl };
-    } else if (status.result.status === "errored") {
-      return { status: "error", errorMessage: status.result.errorMessage };
+      return { status: "Mined", queueId, transactionHash, blockExplorerUrl };
     }
 
-    return { status: status.result.status };
+    return {
+      status:
+        status.result.status.charAt(0).toUpperCase() +
+        status.result.status.slice(1),
+      queueId,
+    };
   } catch (error) {
     console.error("Error checking transaction status:", error);
     return {
       status: "error",
+      queueId,
       errorMessage: "Failed to check transaction status",
     };
   }

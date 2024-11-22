@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -10,10 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Webhook } from "./Webhook";
-import { ConnectButton, useActiveAccount } from "thirdweb/react";
-import { baseSepolia } from "thirdweb/chains";
 import { THIRDWEB_CLIENT } from "@/lib/client";
+import { useState } from "react";
+import { baseSepolia } from "thirdweb/chains";
+import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import { Webhook } from "./Webhook";
 
 interface ClaimTransactionResults {
   queueId: string;
@@ -34,7 +34,7 @@ export function Sponsorship() {
   const [isLoading, setIsLoading] = useState(false);
   const [queueId, setQueueId] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<ClaimTransactionResults[]>(
-    []
+    [],
   );
   const [selectedContract, setSelectedContract] = useState<string>("");
   const account = useActiveAccount();
@@ -79,7 +79,7 @@ export function Sponsorship() {
       if (result.queueId) {
         const pollInterval = setInterval(async () => {
           const statusResponse = await fetch(
-            `/api/claimTo?queueId=${result.queueId}`
+            `/api/claimTo?queueId=${result.queueId}`,
           );
           const statusData = await statusResponse.json();
 
@@ -91,8 +91,8 @@ export function Sponsorship() {
                     status: statusData.status,
                     errorMessage: statusData.errorMessage,
                   }
-                : tx
-            )
+                : tx,
+            ),
           );
 
           if (statusData.status === "Mined") {
@@ -116,23 +116,35 @@ export function Sponsorship() {
     <div className="w-full px-4 sm:px-6 md:px-8">
       <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
         <div className="space-y-3 sm:space-y-4">
-            <br/>
-            <ConnectButton client={THIRDWEB_CLIENT} chain={baseSepolia} />
+          <br />
+          <ConnectButton client={THIRDWEB_CLIENT} chain={baseSepolia} />
           <div className="text-sm text-gray-500">
-            <ol >
-              Select an NFT Contract to mint
-            </ol>
+            <ol>Select an NFT Contract to mint</ol>
           </div>
-          <Select onValueChange={(value) => {
-            setContractAddress(value);
-            setSelectedContract(value);
-          }}>
-            <SelectTrigger className={`w-full text-sm sm:text-base ${selectedContract === "0x1aE0BEDb93f92e3687F4f5FaFa846132a456FAd4" ? "text-green-500" : selectedContract === "0x021c08f83E2eF2Ab3DE80b78aC7d0daa3ABf73c4" ? "text-red-500" : ""}`}>
+          <Select
+            onValueChange={(value) => {
+              setContractAddress(value);
+              setSelectedContract(value);
+            }}
+          >
+            <SelectTrigger
+              className={`w-full text-sm sm:text-base ${selectedContract === "0x1aE0BEDb93f92e3687F4f5FaFa846132a456FAd4" ? "text-green-500" : selectedContract === "0x021c08f83E2eF2Ab3DE80b78aC7d0daa3ABf73c4" ? "text-red-500" : ""}`}
+            >
               <SelectValue placeholder="Contract Address" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="0x1aE0BEDb93f92e3687F4f5FaFa846132a456FAd4" className="text-green-500">Engine Demo Treasure Chest (Successful Transaction)</SelectItem>
-              <SelectItem value="0x021c08f83E2eF2Ab3DE80b78aC7d0daa3ABf73c4" className="text-red-500">Engine Demo Treasure Chest (Failed Transaction)</SelectItem>
+              <SelectItem
+                value="0x1aE0BEDb93f92e3687F4f5FaFa846132a456FAd4"
+                className="text-green-500"
+              >
+                Engine Demo Treasure Chest (Successful Transaction)
+              </SelectItem>
+              <SelectItem
+                value="0x021c08f83E2eF2Ab3DE80b78aC7d0daa3ABf73c4"
+                className="text-red-500"
+              >
+                Engine Demo Treasure Chest (Failed Transaction)
+              </SelectItem>
             </SelectContent>
           </Select>
           <div className="text-sm text-gray-500">
@@ -148,9 +160,9 @@ export function Sponsorship() {
             required
             className="text-sm sm:text-base"
           />
-          <Button 
-            type="submit" 
-            disabled={isLoading || !account} 
+          <Button
+            type="submit"
+            disabled={isLoading || !account}
             className="w-full text-sm sm:text-base"
           >
             {isLoading ? "Minting..." : "Mint NFT"}

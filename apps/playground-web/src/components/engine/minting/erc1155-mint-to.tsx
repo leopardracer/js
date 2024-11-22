@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ClaimTransactionResults } from "./TransactionResults";
-import { upload } from "thirdweb/storage";
-import { useActiveAccount, ConnectButton } from "thirdweb/react";
 import { THIRDWEB_CLIENT } from "@/lib/client";
+import { useState } from "react";
 import { baseSepolia } from "thirdweb/chains";
+import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import { upload } from "thirdweb/storage";
+import { ClaimTransactionResults as ClaimTransactionResultsComponent } from "./TransactionResults";
 
 interface ClaimTransactionResults {
   queueId: string;
@@ -47,19 +47,21 @@ export function ERC1155MintTo() {
   const pollTransactionStatus = async (queueId: string) => {
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch(`/api/transaction-status?queueId=${queueId}`);
+        const response = await fetch(
+          `/api/transaction-status?queueId=${queueId}`,
+        );
         const status = await response.json();
 
-        setResults((prevResults) => 
-          prevResults.map((result) => 
+        setResults((prevResults) =>
+          prevResults.map((result) =>
             result.queueId === queueId
               ? {
                   ...result,
                   ...status,
                   status: status.status === "mined" ? "Mined" : status.status,
                 }
-              : result
-          )
+              : result,
+          ),
         );
 
         if (status.status === "Mined" || status.status === "error") {
@@ -81,8 +83,8 @@ export function ERC1155MintTo() {
       return;
     }
 
-    const supplyNum = parseInt(supply);
-    if (isNaN(supplyNum) || supplyNum < 1) {
+    const supplyNum = Number.parseInt(supply);
+    if (Number.isNaN(supplyNum) || supplyNum < 1) {
       alert("Supply must be a positive number.");
       return;
     }
@@ -113,10 +115,10 @@ export function ERC1155MintTo() {
       }
 
       const result = await response.json();
-      
+
       // Add the initial queued transaction to results
       setResults((prevResults) => [...prevResults, result]);
-      
+
       // Start polling for status updates
       pollTransactionStatus(result.queueId);
     } catch (error) {
@@ -159,15 +161,15 @@ export function ERC1155MintTo() {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="flex flex-col md:flex-row gap-8 w-full">
+      <div className="flex w-full flex-col gap-8 md:flex-row">
         {/* Form Section */}
         <div className="flex flex-col items-center justify-center">
-        <ConnectButton client={THIRDWEB_CLIENT} chain={baseSepolia} />
+          <ConnectButton client={THIRDWEB_CLIENT} chain={baseSepolia} />
           {account && (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
-              <div>
-                <Label>Address</Label>
+                <div>
+                  <Label>Address</Label>
                   <Input
                     id="address"
                     type="text"
@@ -175,124 +177,125 @@ export function ERC1155MintTo() {
                     disabled
                     className="text-sm sm:text-base"
                   />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Name</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="NFT Name"
-                    className="text-sm sm:text-base"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
                 </div>
-                <div>
-                  <Label>Description</Label>
-                  <Input
-                    id="description"
-                    placeholder="NFT Description"
-                    className="text-sm sm:text-base"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Image Upload</Label>
-                  <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Name</Label>
                     <Input
-                      id="image"
-                      type="file"
-                      accept="image/*"
+                      id="name"
+                      type="text"
+                      placeholder="NFT Name"
                       className="text-sm sm:text-base"
-                      onChange={handleImageUpload}
-                      disabled={isUploading}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
                     />
-                    {imageFile && (
-                      <div className="text-sm text-muted-foreground">
-                        Selected: {imageFile.name}
-                      </div>
-                    )}
-                    {isUploading && (
-                      <div className="text-sm text-muted-foreground">
-                        Uploading...
-                      </div>
-                    )}
+                  </div>
+                  <div>
+                    <Label>Description</Label>
+                    <Input
+                      id="description"
+                      placeholder="NFT Description"
+                      className="text-sm sm:text-base"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      required
+                    />
                   </div>
                 </div>
-                <div>
-                  <Label>Supply</Label>
-                  <Input
-                    id="supply"
-                    type="number"
-                    min="1"
-                    placeholder="1"
-                    className="text-sm sm:text-base"
-                    value={supply}
-                    onChange={(e) => setSupply(e.target.value)}
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Image Upload</Label>
+                    <div className="flex flex-col gap-2">
+                      <Input
+                        id="image"
+                        type="file"
+                        accept="image/*"
+                        className="text-sm sm:text-base"
+                        onChange={handleImageUpload}
+                        disabled={isUploading}
+                      />
+                      {imageFile && (
+                        <div className="text-muted-foreground text-sm">
+                          Selected: {imageFile.name}
+                        </div>
+                      )}
+                      {isUploading && (
+                        <div className="text-muted-foreground text-sm">
+                          Uploading...
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Supply</Label>
+                    <Input
+                      id="supply"
+                      type="number"
+                      min="1"
+                      placeholder="1"
+                      className="text-sm sm:text-base"
+                      value={supply}
+                      onChange={(e) => setSupply(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-            <Button type="submit" disabled={isSubmitting} className="w-full">
-              {isSubmitting ? "Minting..." : "Mint NFT"}
+              <Button type="submit" disabled={isSubmitting} className="w-full">
+                {isSubmitting ? "Minting..." : "Mint NFT"}
               </Button>
-            <p className="max-w-[600px]">
-              thirdweb Engine Playground{" "}
-              <a
-                href="https://thirdweb.com/base-sepolia-testnet/0x8CD193648f5D4E8CD9fD0f8d3865052790A680f6/nfts"
-                target="_blank"
-                className="text-blue-500"
-              >
-                Minting Contract
-              </a>
-            </p>
-          </form>
+              <p className="max-w-[600px]">
+                thirdweb Engine Playground{" "}
+                <a
+                  href="https://thirdweb.com/base-sepolia-testnet/0x8CD193648f5D4E8CD9fD0f8d3865052790A680f6/nfts"
+                  target="_blank"
+                  className="text-blue-500"
+                  rel="noreferrer"
+                >
+                  Minting Contract
+                </a>
+              </p>
+            </form>
           )}
         </div>
 
         {/* Image Preview Section */}
-          {account && (
-        <div className="mt-6 w-full max-w-[400px]">
-          {image ? (
-            <img
-              src={resolveIpfsUrl(image)}
-              alt="NFT Preview"
-              className="w-full h-[400px] object-contain rounded-lg border border-border"
-              onError={(e) => {
-                console.error("Error loading image:", image);
-                const target = e.target as HTMLImageElement;
-                target.src =
-                  'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-              }}
-            />
-          ) : (
-            <div className="w-full h-[400px] flex items-center justify-center rounded-lg border border-border bg-muted">
-              <p className="text-muted-foreground">
-                Upload an image to see preview
-              </p>
-            </div>
-          )}
-          {name && (
-            <div className="mt-4 text-center">
-              <h3 className="text-lg font-semibold">{name}</h3>
-              {description && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  {description}
+        {account && (
+          <div className="mt-6 w-full max-w-[400px]">
+            {image ? (
+              <img
+                src={resolveIpfsUrl(image)}
+                alt="NFT Preview"
+                className="h-[400px] w-full rounded-lg border border-border object-contain"
+                onError={(e) => {
+                  console.error("Error loading image:", image);
+                  const target = e.target as HTMLImageElement;
+                  target.src =
+                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                }}
+              />
+            ) : (
+              <div className="flex h-[400px] w-full items-center justify-center rounded-lg border border-border bg-muted">
+                <p className="text-muted-foreground">
+                  Upload an image to see preview
                 </p>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+            {name && (
+              <div className="mt-4 text-center">
+                <h3 className="font-semibold text-lg">{name}</h3>
+                {description && (
+                  <p className="mt-1 text-muted-foreground text-sm">
+                    {description}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
-      <ClaimTransactionResults results={results} />
+      <ClaimTransactionResultsComponent results={results} />
     </div>
   );
 }

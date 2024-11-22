@@ -1,6 +1,6 @@
+import { AirdropERC20 } from "@/components/engine/airdrop/airdrop-erc20";
 import ThirdwebProvider from "@/components/thirdweb-provider";
 import { APIHeader } from "../../../components/blocks/APIHeader";
-import { AirdropERC20 } from "@/components/engine/airdrop/airdrop-erc20";
 // TODO: Get updated banner image and description.
 export default function Page() {
   return (
@@ -10,14 +10,16 @@ export default function Page() {
           title="Airdrop"
           description={
             <>
-              Engine makes it effortless for any developer to airdrop tokens at scale. You sponsor the gas so your users only need a wallet address!
+              Engine makes it effortless for any developer to airdrop tokens at
+              scale. You sponsor the gas so your users only need a wallet
+              address!
             </>
           }
           docsLink="https://thirdweb-engine.apidocumentation.com/reference#tag/erc20/POST/contract/{chain}/{contractAddress}/erc20/mint-batch-to"
           heroLink="/engine-webhooks.webp"
         />
 
-        <section >
+        <section>
           <InGameCurrency />
         </section>
       </main>
@@ -33,7 +35,8 @@ function InGameCurrency() {
           Airdrop
         </h2>
         <p className="max-w-[600px]">
-          Use Engine to Airdrop in-game currency to a list of players in one transaction.
+          Use Engine to Airdrop in-game currency to a list of players in one
+          transaction.
         </p>
       </div>
       <AirdropERC20 />

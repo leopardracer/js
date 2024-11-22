@@ -1,5 +1,5 @@
 import { Engine } from "@thirdweb-dev/engine";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 const engine = new Engine({
   url: process.env.ENGINE_URL as string,
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     console.error("Error checking transaction status:", error);
     return NextResponse.json(
       { error: "Failed to check transaction status" },
-      { status: 500 }
+      { status: 500 },
     );
   }
-} 
+}

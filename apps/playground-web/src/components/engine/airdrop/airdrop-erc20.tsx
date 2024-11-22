@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -10,8 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card } from "@/components/ui/card";
-import { ClaimTransactionResults } from "./TransactionResults";
+import { useState } from "react";
+import { ClaimTransactionResults as ClaimTransactionResultsComponent } from "./TransactionResults";
 
 interface ClaimTransactionResults {
   queueId: string;
@@ -30,9 +30,20 @@ interface CsvRow {
   toAddress: string;
   amount: string;
 }
+
+interface BatchResult {
+  queueId: string;
+  addresses: string[];
+  amounts: string[];
+  status: "Queued" | "Sent" | "Mined" | "error";
+  timestamp: number;
+  chainId: number;
+  network: "Ethereum" | "Base Sep" | "OP Sep";
+}
+
 // Setting dummy addresses so no one gets spammed.
 export function AirdropERC20() {
-  const [csvData, setCsvData] = useState<CsvRow[]>([
+  const [csvData] = useState<CsvRow[]>([
     { toAddress: "0x1f91EB653116A43413930c1df0CF5794fCc2D611", amount: "1" },
     { toAddress: "0xA707E9650631800a635c629e9C8E5937b7277a08", amount: "1" },
     { toAddress: "0xF1f466c973C197e5D9318F6241C2da31742d3d03", amount: "1" },
@@ -50,7 +61,7 @@ export function AirdropERC20() {
 
   const paginatedData = csvData.slice(
     currentPage * rowsPerPage,
-    (currentPage + 1) * rowsPerPage
+    (currentPage + 1) * rowsPerPage,
   );
 
   const totalPages = Math.ceil(csvData.length / rowsPerPage);
@@ -61,10 +72,12 @@ export function AirdropERC20() {
   const pollTransactionStatus = async (queueId: string) => {
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch(`/api/transaction-status?queueId=${queueId}`);
+        const response = await fetch(
+          `/api/transaction-status?queueId=${queueId}`,
+        );
         const status = await response.json();
 
-        setResults((prevResults) => 
+        setResults((prevResults) =>
           prevResults.map((result) => {
             if (result.queueId === queueId) {
               return {
@@ -74,7 +87,7 @@ export function AirdropERC20() {
               };
             }
             return result;
-          })
+          }),
         );
 
         if (status.status === "Mined" || status.status === "error") {
@@ -114,9 +127,9 @@ export function AirdropERC20() {
       }
 
       const result = await response.json();
-      
+
       // Transform the initial queued results
-      const transformedResults = result.flatMap((batch: any) =>
+      const transformedResults = result.flatMap((batch: BatchResult) =>
         batch.addresses.map((address: string, index: number) => ({
           queueId: batch.queueId,
           status: batch.status,
@@ -125,27 +138,28 @@ export function AirdropERC20() {
           timestamp: batch.timestamp,
           chainId: batch.chainId,
           network: batch.network,
-        }))
+        })),
       );
 
       setResults(transformedResults);
-      
-      // Start polling for each batch
-      result.forEach((batch: any) => {
-        pollTransactionStatus(batch.queueId);
-      });
 
+      // Start polling for each batch
+      for (const batch of result) {
+        pollTransactionStatus(batch.queueId);
+      }
     } catch (error) {
       console.error("Error:", error);
-      setResults([{
-        queueId: "",
-        status: "error",
-        errorMessage: "Error",
-        toAddress: "",
-        amount: "",
-        chainId: 84532,
-        network: "Base Sep",
-      }]);
+      setResults([
+        {
+          queueId: "",
+          status: "error",
+          errorMessage: "Error",
+          toAddress: "",
+          amount: "",
+          chainId: 84532,
+          network: "Base Sep",
+        },
+      ]);
     } finally {
       setIsSubmitting(false);
     }
@@ -154,8 +168,8 @@ export function AirdropERC20() {
   return (
     <div className="w-full px-4 sm:px-6 md:px-8">
       <br />
-      <Card className="w-full mt-8 bg-background">
-        <div className="p-6 space-y-6 sm:space-y-8">
+      <Card className="mt-8 w-full bg-background">
+        <div className="space-y-6 p-6 sm:space-y-8">
           <div className="space-y-4">
             <Table>
               <TableHeader>
@@ -165,15 +179,15 @@ export function AirdropERC20() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedData.map((row, index) => (
-                  <TableRow key={index}>
+                {paginatedData.map((row) => (
+                  <TableRow key={row.toAddress}>
                     <TableCell>{row.toAddress}</TableCell>
                     <TableCell>{row.amount}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <Button
                 onClick={() => setCurrentPage((prev) => prev - 1)}
                 disabled={currentPage === 0}
@@ -203,7 +217,7 @@ export function AirdropERC20() {
           ? "Submitting..."
           : "Submit and watch the transaction results below"}
       </Button>
-      <ClaimTransactionResults results={results} />
+      <ClaimTransactionResultsComponent results={results} />
     </div>
   );
 }

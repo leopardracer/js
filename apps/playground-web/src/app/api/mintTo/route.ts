@@ -24,19 +24,6 @@ const engine = new Engine({
   accessToken: process.env.ENGINE_ACCESS_TOKEN as string,
 });
 
-interface ClaimResult {
-  queueId: string;
-  status: "Queued" | "Sent" | "Mined" | "error";
-  transactionHash?: string | undefined | null;
-  blockExplorerUrl?: string | undefined | null;
-  errorMessage?: string;
-  toAddress: string;
-  amount: string;
-  timestamp: number;
-  chainId: number;
-  network: "Base Sep" | "OP Sep" | "Ethereum";
-}
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -80,7 +67,7 @@ export async function POST(req: NextRequest) {
     };
 
     // Start polling in the background
-    pollToMine(res.result.queueId, receiver).then((pollResult) => {
+    pollToMine(res.result.queueId).then((pollResult) => {
       // This will be handled by the frontend polling
       console.log("Transaction completed:", pollResult);
     });
@@ -93,16 +80,11 @@ export async function POST(req: NextRequest) {
         { error: "Error minting ERC1155 tokens", details: error.message },
         { status: 500 },
       );
-    } else {
-      return NextResponse.json(
-        { error: "An unknown error occurred" },
-        { status: 500 },
-      );
     }
   }
 }
 
-async function pollToMine(queueId: string, receiver: string) {
+async function pollToMine(queueId: string) {
   try {
     const status = await engine.transaction.status(queueId);
 
@@ -110,8 +92,6 @@ async function pollToMine(queueId: string, receiver: string) {
       const transactionHash = status.result.transactionHash;
       const blockExplorerUrl = `https://base-sepolia.blockscout.com/tx/${transactionHash}`;
       return { status: "Mined", transactionHash, blockExplorerUrl };
-    } else if (status.result.status === "errored") {
-      return { status: "error", errorMessage: status.result.errorMessage };
     }
 
     return { status: status.result.status };
