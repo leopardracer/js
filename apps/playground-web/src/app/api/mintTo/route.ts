@@ -1,12 +1,12 @@
 import { Engine } from "@thirdweb-dev/engine";
 import * as dotenv from "dotenv";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 dotenv.config();
 
 const CHAIN_ID = "84532";
 const CONTRACT_ADDRESS = "0x8CD193648f5D4E8CD9fD0f8d3865052790A680f6";
-const BACKEND_WALLET_ADDRESS = process.env.BACKEND_WALLET as string;
+const BACKEND_WALLET_ADDRESS = process.env.ENGINE_BACKEND_WALLET as string;
 
 // Add logging for environment variables
 console.log("Environment Variables:");
@@ -14,11 +14,14 @@ console.log("CHAIN_ID:", CHAIN_ID);
 console.log("BACKEND_WALLET_ADDRESS:", BACKEND_WALLET_ADDRESS);
 console.log("CONTRACT_ADDRESS:", CONTRACT_ADDRESS);
 console.log("ENGINE_URL:", process.env.ENGINE_URL);
-console.log("ACCESS_TOKEN:", process.env.ACCESS_TOKEN ? "Set" : "Not Set");
+console.log(
+  "ACCESS_TOKEN:",
+  process.env.ENGINE_ACCESS_TOKEN ? "Set" : "Not Set",
+);
 
 const engine = new Engine({
   url: process.env.ENGINE_URL as string,
-  accessToken: process.env.ACCESS_TOKEN as string,
+  accessToken: process.env.ENGINE_ACCESS_TOKEN as string,
 });
 
 interface ClaimResult {
@@ -45,13 +48,13 @@ export async function POST(req: NextRequest) {
     if (!receiver || !metadataWithSupply) {
       return NextResponse.json(
         { error: "Missing receiver or metadataWithSupply" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.log(
       `Attempting to mint for receiver: ${receiver}, metadataWithSupply:`,
-      metadataWithSupply
+      metadataWithSupply,
     );
     console.log("Using CONTRACT_ADDRESS:", CONTRACT_ADDRESS);
 
@@ -62,7 +65,7 @@ export async function POST(req: NextRequest) {
       {
         receiver,
         metadataWithSupply,
-      }
+      },
     );
 
     // Return immediately with queued status
@@ -72,7 +75,7 @@ export async function POST(req: NextRequest) {
       toAddress: receiver,
       amount: metadataWithSupply.supply || "1",
       timestamp: Date.now(),
-      chainId: parseInt(CHAIN_ID),
+      chainId: Number.parseInt(CHAIN_ID),
       network: "Base Sep" as const,
     };
 
@@ -88,12 +91,12 @@ export async function POST(req: NextRequest) {
     if (error instanceof Error) {
       return NextResponse.json(
         { error: "Error minting ERC1155 tokens", details: error.message },
-        { status: 500 }
+        { status: 500 },
       );
     } else {
       return NextResponse.json(
         { error: "An unknown error occurred" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }
@@ -102,7 +105,7 @@ export async function POST(req: NextRequest) {
 async function pollToMine(queueId: string, receiver: string) {
   try {
     const status = await engine.transaction.status(queueId);
-    
+
     if (status.result.status === "mined") {
       const transactionHash = status.result.transactionHash;
       const blockExplorerUrl = `https://base-sepolia.blockscout.com/tx/${transactionHash}`;
@@ -110,7 +113,7 @@ async function pollToMine(queueId: string, receiver: string) {
     } else if (status.result.status === "errored") {
       return { status: "error", errorMessage: status.result.errorMessage };
     }
-    
+
     return { status: status.result.status };
   } catch (error) {
     console.error("Error checking transaction status:", error);

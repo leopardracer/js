@@ -1,22 +1,26 @@
 import { Engine } from "@thirdweb-dev/engine";
-import type { Address } from "thirdweb";
 import * as dotenv from "dotenv";
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import type { Address } from "thirdweb";
 
 dotenv.config();
 
 const BASESEP_CHAIN_ID = "84532";
-const BACKEND_WALLET_ADDRESS = process.env.BACKEND_WALLET as string;
+const BACKEND_WALLET_ADDRESS = process.env.ENGINE_BACKEND_WALLET as string;
 
 console.log("Environment Variables:");
 console.log("CHAIN_ID:", BASESEP_CHAIN_ID);
 console.log("BACKEND_WALLET_ADDRESS:", BACKEND_WALLET_ADDRESS);
 console.log("ENGINE_URL:", process.env.ENGINE_URL);
-console.log("ACCESS_TOKEN:", process.env.ACCESS_TOKEN ? "Set" : "Not Set");
+console.log(
+  "ACCESS_TOKEN:",
+  process.env.ENGINE_ACCESS_TOKEN ? "Set" : "Not Set",
+);
 
 const engine = new Engine({
   url: process.env.ENGINE_URL as string,
-  accessToken: process.env.ACCESS_TOKEN as string,
+  accessToken: process.env.ENGINE_ACCESS_TOKEN as string,
 });
 
 type TransactionStatus = "Queued" | "Sent" | "Mined" | "error";
@@ -43,11 +47,11 @@ type Receiver = {
 export async function POST(req: NextRequest) {
   try {
     const { data, contractAddress } = await req.json();
-    
+
     console.log("Received request with:", {
       contractAddress,
       dataLength: data.length,
-      sampleData: data[0]
+      sampleData: data[0],
     });
 
     const receivers: Receiver[] = data.map((entry: any) => ({
@@ -69,17 +73,17 @@ export async function POST(req: NextRequest) {
       BACKEND_WALLET_ADDRESS,
       {
         data: firstChunk,
-      }
+      },
     );
 
     // Return initial queued status
     const initialResult = {
       queueId: res.result.queueId,
       status: "Queued" as const,
-      addresses: firstChunk.map(r => r.toAddress),
-      amounts: firstChunk.map(r => r.amount),
+      addresses: firstChunk.map((r) => r.toAddress),
+      amounts: firstChunk.map((r) => r.amount),
       timestamp: Date.now(),
-      chainId: parseInt(chain),
+      chainId: Number.parseInt(chain),
       network: "Base Sep" as const,
     };
 
@@ -91,17 +95,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json([initialResult]);
   } catch (error: any) {
     console.error("Detailed error:", error);
-    return NextResponse.json({ 
-      error: "Transfer failed", 
-      details: error.message 
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Transfer failed",
+        details: error.message,
+      },
+      { status: 500 },
+    );
   }
 }
 
 async function pollToMine(queueId: string) {
   try {
     const status = await engine.transaction.status(queueId);
-    
+
     if (status.result.status === "mined") {
       const transactionHash = status.result.transactionHash;
       const blockExplorerUrl = `https://base-sepolia.blockscout.com/tx/${transactionHash}`;
@@ -109,7 +116,7 @@ async function pollToMine(queueId: string) {
     } else if (status.result.status === "errored") {
       return { status: "error", errorMessage: status.result.errorMessage };
     }
-    
+
     return { status: status.result.status };
   } catch (error) {
     console.error("Error checking transaction status:", error);

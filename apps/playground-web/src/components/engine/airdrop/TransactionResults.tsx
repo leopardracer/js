@@ -1,7 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import { format } from 'timeago.js';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -10,8 +15,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import type React from "react";
+import { useState } from "react";
+import { format } from "timeago.js";
 
 interface ClaimTransactionResults {
   queueId: string;
@@ -23,14 +29,16 @@ interface ClaimTransactionResults {
   amount: string;
   timestamp?: number;
   chainId: number;
-  network: 'Ethereum' | 'Base Sep' | 'OP Sep';
+  network: "Ethereum" | "Base Sep" | "OP Sep";
 }
 
 interface ClaimTransactionResultsProps {
   results: ClaimTransactionResults[];
 }
-// I did have one component of this, but it was causing weird queuing issues when shared among multiple components. So just created one for each instead. 
-export function ClaimTransactionResults({ results }: ClaimTransactionResultsProps) {
+// I did have one component of this, but it was causing weird queuing issues when shared among multiple components. So just created one for each instead.
+export function ClaimTransactionResults({
+  results,
+}: ClaimTransactionResultsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [showLeftGradient, setShowLeftGradient] = useState(false);
   const [showRightGradient, setShowRightGradient] = useState(true);
@@ -45,8 +53,8 @@ export function ClaimTransactionResults({ results }: ClaimTransactionResultsProp
     amount: "1.0",
     timestamp: Date.now() - 15 * 60 * 1000,
     chainId: 1,
-    network: 'Ethereum',
-    errorMessage: undefined
+    network: "Ethereum",
+    errorMessage: undefined,
   };
 
   const dummyTransaction2: ClaimTransactionResults = {
@@ -58,16 +66,23 @@ export function ClaimTransactionResults({ results }: ClaimTransactionResultsProp
     amount: "0.5",
     timestamp: Date.now() - 30 * 60 * 1000,
     chainId: 1,
-    network: 'Base Sep',
-    errorMessage: undefined
+    network: "Base Sep",
+    errorMessage: undefined,
   };
 
   const sortedResults = [...results].reverse();
-  const sortedResultsWithDummy = [...sortedResults, dummyTransaction1, dummyTransaction2];
-  
+  const sortedResultsWithDummy = [
+    ...sortedResults,
+    dummyTransaction1,
+    dummyTransaction2,
+  ];
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = sortedResultsWithDummy.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = sortedResultsWithDummy.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
   const totalPages = Math.ceil(sortedResultsWithDummy.length / itemsPerPage);
 
   const handleNextPage = () => {
@@ -100,8 +115,9 @@ export function ClaimTransactionResults({ results }: ClaimTransactionResultsProp
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const isAtStart = target.scrollLeft === 0;
-    const isAtEnd = target.scrollLeft + target.clientWidth >= target.scrollWidth - 1; // -1 for rounding errors
-    
+    const isAtEnd =
+      target.scrollLeft + target.clientWidth >= target.scrollWidth - 1; // -1 for rounding errors
+
     setShowLeftGradient(!isAtStart);
     setShowRightGradient(!isAtEnd);
   };
@@ -133,42 +149,53 @@ export function ClaimTransactionResults({ results }: ClaimTransactionResultsProp
               {currentItems.map((result, index) => (
                 <TableRow key={`${result.network}-${result.queueId}-${index}`}>
                   <TableCell className="font-medium">
-                    {result.queueId ? 
-                      `${result.queueId.substring(0, 6)}...${result.queueId.substring(
-                        result.queueId.length - 4
-                      )}` : 
-                      '----'
-                    }
+                    {result.queueId
+                      ? `${result.queueId.substring(0, 6)}...${result.queueId.substring(
+                          result.queueId.length - 4,
+                        )}`
+                      : "----"}
                   </TableCell>
                   <TableCell>
                     <span className="flex items-center gap-2">
-                      {result.network === 'Base Sep' && (
-                        <img src="/BaseSep.png" alt="Base" className="w-4 h-4" />
+                      {result.network === "Base Sep" && (
+                        <img
+                          src="/BaseSep.png"
+                          alt="Base"
+                          className="w-4 h-4"
+                        />
                       )}
-                      {result.network === 'OP Sep' && (
-                        <img src="/OP.png" alt="Optimism Sep" className="w-4 h-4" />
+                      {result.network === "OP Sep" && (
+                        <img
+                          src="/OP.png"
+                          alt="Optimism Sep"
+                          className="w-4 h-4"
+                        />
                       )}
-                      {result.network === 'Ethereum' && (
-                        <img src="/Ethereum.png" alt="Ethereum" className="w-4 h-4" />
+                      {result.network === "Ethereum" && (
+                        <img
+                          src="/Ethereum.png"
+                          alt="Ethereum"
+                          className="w-4 h-4"
+                        />
                       )}
                       {result.network}
                     </span>
                   </TableCell>
                   <TableCell>
                     {(() => {
-                      if (!result.toAddress) return '----';
-                      
+                      if (!result.toAddress) return "----";
+
                       const addressDisplay = `${result.toAddress.substring(0, 6)}...${result.toAddress.substring(
-                        result.toAddress.length - 4
+                        result.toAddress.length - 4,
                       )}`;
                       // Keeping OP here for consistency. Will be adding a component for Optimism soon.
                       const getExplorerUrl = () => {
                         switch (result.network) {
-                          case 'Base Sep':
+                          case "Base Sep":
                             return `https://base-sepolia.blockscout.com/address/${result.toAddress}?tab=tokens`;
-                          case 'OP Sep':
+                          case "OP Sep":
                             return `https://optimism-sepolia.blockscout.com/address/${result.toAddress}?tab=tokens`;
-                          case 'Ethereum':
+                          case "Ethereum":
                             return `https://etherscan.io/address/${result.toAddress}?tab=tokens`;
                           default:
                             return null;
@@ -176,7 +203,7 @@ export function ClaimTransactionResults({ results }: ClaimTransactionResultsProp
                       };
 
                       const explorerUrl = getExplorerUrl();
-                      
+
                       return explorerUrl ? (
                         <a
                           href={explorerUrl}
@@ -192,10 +219,12 @@ export function ClaimTransactionResults({ results }: ClaimTransactionResultsProp
                     })()}
                   </TableCell>
                   <TableCell>
-                    {result.timestamp ? format(result.timestamp) : 'Just now'}
+                    {result.timestamp ? format(result.timestamp) : "Just now"}
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(getDisplayStatus(result))}`}>
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(getDisplayStatus(result))}`}
+                    >
                       {getDisplayStatus(result)}
                     </span>
                   </TableCell>
@@ -208,11 +237,13 @@ export function ClaimTransactionResults({ results }: ClaimTransactionResultsProp
                         className="text-[hsl(var(--link-foreground))] hover:text-foreground"
                       >
                         {`${result.transactionHash.substring(0, 6)}...${result.transactionHash.substring(
-                          result.transactionHash.length - 4
+                          result.transactionHash.length - 4,
                         )}`}
                       </a>
                     ) : result.errorMessage ? (
-                      <span className="text-red-600">{result.errorMessage}</span>
+                      <span className="text-red-600">
+                        {result.errorMessage}
+                      </span>
                     ) : (
                       "----"
                     )}
@@ -230,19 +261,13 @@ export function ClaimTransactionResults({ results }: ClaimTransactionResultsProp
         )}
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <Button
-          onClick={handlePrevPage}
-          disabled={currentPage === 1}
-        >
+        <Button onClick={handlePrevPage} disabled={currentPage === 1}>
           Previous
         </Button>
         <span className="text-muted-foreground">
           Page {currentPage} of {totalPages}
         </span>
-        <Button
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages}
-        >
+        <Button onClick={handleNextPage} disabled={currentPage === totalPages}>
           Next
         </Button>
       </CardFooter>

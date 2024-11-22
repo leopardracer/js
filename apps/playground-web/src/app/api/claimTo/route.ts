@@ -1,21 +1,25 @@
 import { Engine } from "@thirdweb-dev/engine";
 import * as dotenv from "dotenv";
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 dotenv.config();
 
 const BASESEP_CHAIN_ID = "84532";
-const BACKEND_WALLET_ADDRESS = process.env.BACKEND_WALLET as string;
+const BACKEND_WALLET_ADDRESS = process.env.ENGINE_BACKEND_WALLET as string;
 
 console.log("Environment Variables:");
 console.log("CHAIN_ID:", BASESEP_CHAIN_ID);
 console.log("BACKEND_WALLET_ADDRESS:", BACKEND_WALLET_ADDRESS);
 console.log("ENGINE_URL:", process.env.ENGINE_URL);
-console.log("ACCESS_TOKEN:", process.env.ACCESS_TOKEN ? "Set" : "Not Set");
+console.log(
+  "ACCESS_TOKEN:",
+  process.env.ENGINE_ACCESS_TOKEN ? "Set" : "Not Set",
+);
 
 const engine = new Engine({
   url: process.env.ENGINE_URL as string,
-  accessToken: process.env.ACCESS_TOKEN as string,
+  accessToken: process.env.ENGINE_ACCESS_TOKEN as string,
 });
 
 type TransactionStatus = "Queued" | "Sent" | "Mined" | "error";
@@ -37,12 +41,12 @@ const pollingProcesses = new Map<string, NodeJS.Timeout>();
 
 // Helper function to make a single claim
 async function makeClaimRequest(
-  chainId: string, 
-  contractAddress: string, 
-  data: { 
-    recipient: string, 
-    quantity: number 
-  }
+  chainId: string,
+  contractAddress: string,
+  data: {
+    recipient: string;
+    quantity: number;
+  },
 ): Promise<ClaimResult> {
   try {
     // Validate the recipient address format
@@ -62,7 +66,7 @@ async function makeClaimRequest(
           maxFeePerGas: "1000000000",
           maxPriorityFeePerGas: "1000000000",
         },
-      }
+      },
     );
 
     const initialResponse: ClaimResult = {
@@ -85,11 +89,11 @@ async function makeClaimRequest(
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    
+
     if (!body.receiver || !body.quantity || !body.contractAddress) {
       return NextResponse.json(
         { error: "Missing receiver, quantity, or contract address" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -97,7 +101,7 @@ export async function POST(req: NextRequest) {
     if (!body.contractAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
       return NextResponse.json(
         { error: "Invalid contract address format" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -106,20 +110,20 @@ export async function POST(req: NextRequest) {
       body.contractAddress,
       {
         recipient: body.receiver,
-        quantity: parseInt(body.quantity)
-      }
+        quantity: Number.parseInt(body.quantity),
+      },
     );
 
     return NextResponse.json({ result });
-
   } catch (error) {
     console.error("API Error:", error);
     return NextResponse.json(
-      { 
-        error: error instanceof Error ? error.message : "Unknown error occurred",
-        details: error instanceof Error ? error.stack : undefined
+      {
+        error:
+          error instanceof Error ? error.message : "Unknown error occurred",
+        details: error instanceof Error ? error.stack : undefined,
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }
@@ -127,7 +131,7 @@ export async function POST(req: NextRequest) {
 function startPolling(queueId: string) {
   const maxPollingTime = 5 * 60 * 1000; // 5 minutes timeout
   const startTime = Date.now();
-  
+
   const pollingInterval = setInterval(async () => {
     try {
       // Check if we've exceeded the maximum polling time
@@ -166,11 +170,16 @@ async function pollToMine(queueId: string): Promise<ClaimResult> {
     case "sent":
       console.log("Transaction is submitted to the network");
       return { queueId, status: "Sent" };
-    case "mined":
-      console.log("Transaction mined! 🥳 ERC721 token has been claimed", queueId);
+    case "mined": {
+      console.log(
+        "Transaction mined! 🥳 ERC721 token has been claimed",
+        queueId,
+      );
       const transactionHash = status.result.transactionHash;
-      const blockExplorerUrl = status.result.chainId === BASESEP_CHAIN_ID ? 
-         `https://base-sepolia.blockscout.com/tx/${transactionHash}` : '';
+      const blockExplorerUrl =
+        status.result.chainId === BASESEP_CHAIN_ID
+          ? `https://base-sepolia.blockscout.com/tx/${transactionHash}`
+          : "";
       console.log("View transaction on the blockexplorer:", blockExplorerUrl);
       return {
         queueId,
@@ -178,6 +187,7 @@ async function pollToMine(queueId: string): Promise<ClaimResult> {
         transactionHash: transactionHash ?? undefined,
         blockExplorerUrl: blockExplorerUrl,
       };
+    }
     case "errored":
       console.error("Claim failed", queueId);
       console.error(status.result.errorMessage);
@@ -194,7 +204,7 @@ async function pollToMine(queueId: string): Promise<ClaimResult> {
 // Add a new endpoint to check the status
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const queueId = searchParams.get('queueId');
+  const queueId = searchParams.get("queueId");
 
   if (!queueId) {
     return NextResponse.json({ error: "Missing queueId" }, { status: 400 });
@@ -206,11 +216,11 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Error checking transaction status:", error);
     return NextResponse.json(
-      { 
-        status: "error" as TransactionStatus, 
-        error: "Failed to check transaction status" 
-      }, 
-      { status: 500 }
+      {
+        status: "error" as TransactionStatus,
+        error: "Failed to check transaction status",
+      },
+      { status: 500 },
     );
   }
 }
