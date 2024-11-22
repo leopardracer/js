@@ -30,6 +30,8 @@ export type {
   PaymasterResult,
 } from "../../wallets/smart/types.js";
 
+export { erc7579Config } from "../../wallets/smart/presets/7579.js";
+
 export {
   ENTRYPOINT_ADDRESS_v0_6,
   ENTRYPOINT_ADDRESS_v0_7,

@@ -412,7 +412,7 @@ async function populateUserOp_v0_6(args: {
   sponsorGas: boolean;
   overrides?: SmartWalletOptions["overrides"];
   isDeployed: boolean;
-  nonce: bigint | Hex;
+  nonce: bigint;
   callData: Hex;
   callGasLimit?: bigint;
   maxFeePerGas: bigint;
@@ -609,6 +609,7 @@ async function getAccountInitCode(options: {
   accountSalt?: string;
   createAccountOverride?: (
     factoryContract: ThirdwebContract,
+    adminAddress: string,
   ) => PreparedTransaction;
 }): Promise<Hex> {
   const { factoryContract, adminAddress, accountSalt, createAccountOverride } =
@@ -657,7 +658,6 @@ async function getAccountNonce(options: {
  * @example
  * ```ts
  * import { createAndSignUserOp } from "thirdweb/wallets/smart";
-import { keccak256 } from "../../../utils/hashing/keccak256.js";
  *
  * const userOp = await createAndSignUserOp({
  *  client,

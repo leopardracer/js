@@ -24,9 +24,13 @@ export type SmartWalletOptions = Prettify<
       paymaster?: (
         userOp: UserOperationV06 | UserOperationV07,
       ) => Promise<PaymasterResult>;
-      predictAddress?: (factoryContract: ThirdwebContract) => Promise<string>;
+      predictAddress?: (
+        factoryContract: ThirdwebContract,
+        admin: string,
+      ) => Promise<string>;
       createAccount?: (
         factoryContract: ThirdwebContract,
+        admin: string,
       ) => PreparedTransaction;
       execute?: (
         accountContract: ThirdwebContract,
