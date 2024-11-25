@@ -16,7 +16,7 @@ export default function Page() {
             </>
           }
           docsLink="https://thirdweb-engine.apidocumentation.com/reference#tag/erc20/POST/contract/{chain}/{contractAddress}/erc20/mint-batch-to"
-          heroLink="/engine-webhooks.webp"
+          heroLink="/airdrop.avif"
         />
 
         <section>

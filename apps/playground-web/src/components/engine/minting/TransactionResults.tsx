@@ -123,12 +123,12 @@ export function ClaimTransactionResults({
   };
 
   return (
-    <Card className="w-full mt-8 bg-background">
-      <CardHeader className="flex flex-row justify-between items-center">
-        <h2 className="text-xl font-semibold text-foreground">
+    <Card className="mt-8 w-full bg-background">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <h2 className="font-semibold text-foreground text-xl">
           Transaction Results
         </h2>
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground text-sm">
           Last 24 hours • {sortedResultsWithDummy.length} transactions
         </span>
       </CardHeader>
@@ -161,21 +161,21 @@ export function ClaimTransactionResults({
                         <img
                           src="/BaseSep.png"
                           alt="Base"
-                          className="w-4 h-4"
+                          className="h-4 w-4"
                         />
                       )}
                       {result.network === "OP Sep" && (
                         <img
                           src="/OP.png"
                           alt="Optimism Sep"
-                          className="w-4 h-4"
+                          className="h-4 w-4"
                         />
                       )}
                       {result.network === "Ethereum" && (
                         <img
                           src="/Ethereum.png"
                           alt="Ethereum"
-                          className="w-4 h-4"
+                          className="h-4 w-4"
                         />
                       )}
                       {result.network}
@@ -223,7 +223,7 @@ export function ClaimTransactionResults({
                   </TableCell>
                   <TableCell>
                     <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(getDisplayStatus(result))}`}
+                      className={`inline-flex rounded-full px-2 font-semibold text-xs leading-5 ${getStatusColor(getDisplayStatus(result))}`}
                     >
                       {getDisplayStatus(result)}
                     </span>
@@ -254,13 +254,13 @@ export function ClaimTransactionResults({
           </Table>
         </div>
         {showLeftGradient && (
-          <div className="sm:hidden absolute left-0 top-0 bottom-0 w-12 pointer-events-none bg-gradient-to-r from-background to-transparent" />
+          <div className="pointer-events-none absolute top-0 bottom-0 left-0 w-12 bg-gradient-to-r from-background to-transparent sm:hidden" />
         )}
         {showRightGradient && (
-          <div className="sm:hidden absolute right-0 top-0 bottom-0 w-12 pointer-events-none bg-gradient-to-l from-background to-transparent" />
+          <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent sm:hidden" />
         )}
       </CardContent>
-      <CardFooter className="flex justify-between items-center">
+      <CardFooter className="flex items-center justify-between">
         <Button onClick={handlePrevPage} disabled={currentPage === 1}>
           Previous
         </Button>

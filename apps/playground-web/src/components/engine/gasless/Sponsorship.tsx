@@ -48,7 +48,7 @@ export function Sponsorship() {
         throw new Error("Invalid contract address format");
       }
 
-      const response = await fetch(`/api/claimTo`, {
+      const response = await fetch("/api/claimTo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,8 +63,6 @@ export function Sponsorship() {
       const data = await response.json();
       const { result } = data;
       setQueueId(result.queueId);
-
-      const timestamp = Date.now();
 
       const newTransaction: ClaimTransactionResults = {
         queueId: result.queueId,
@@ -118,7 +116,7 @@ export function Sponsorship() {
         <div className="space-y-3 sm:space-y-4">
           <br />
           <ConnectButton client={THIRDWEB_CLIENT} chain={baseSepolia} />
-          <div className="text-sm text-gray-500">
+          <div className="text-gray-500 text-sm">
             <ol>Select an NFT Contract to mint</ol>
           </div>
           <Select
@@ -147,7 +145,7 @@ export function Sponsorship() {
               </SelectItem>
             </SelectContent>
           </Select>
-          <div className="text-sm text-gray-500">
+          <div className="text-gray-500 text-sm">
             <ol>Select the quantity of NFTs to mint</ol>
           </div>
           <Input
@@ -170,6 +168,14 @@ export function Sponsorship() {
         </div>
       </form>
       <Webhook queueId={queueId || ""} />
+
+      <div className="mt-6">
+        {transactions.map((tx) => (
+          <div key={tx.queueId} className="text-sm">
+            Status: {tx.status} - Amount: {tx.amount}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

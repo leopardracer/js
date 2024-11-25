@@ -15,7 +15,7 @@ export default function Page() {
             </>
           }
           docsLink="https://portal.thirdweb.com/engine/features/webhooks"
-          heroLink="/engine-webhooks.webp"
+          heroLink="/webhooks.avif"
         />
 
         <section>

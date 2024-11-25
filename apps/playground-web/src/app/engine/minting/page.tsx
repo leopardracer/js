@@ -15,7 +15,7 @@ export default function Page() {
             </>
           }
           docsLink="https://thirdweb-engine.apidocumentation.com/reference#tag/erc1155/POST/contract/{chain}/{contractAddress}/erc1155/mint-to"
-          heroLink="/engine-webhooks.webp"
+          heroLink="/minting.avif"
         />
 
         <section>

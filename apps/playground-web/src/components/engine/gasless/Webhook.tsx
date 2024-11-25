@@ -9,8 +9,13 @@ import { useEffect, useState } from "react";
 
 // This says Webhook, but it's actually just displaying a dummy webhook
 
+interface WebhookData {
+  queueId?: string;
+  status?: string;
+}
+
 export function Webhook({ queueId }: { queueId: string }) {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<WebhookData | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -42,7 +47,7 @@ export function Webhook({ queueId }: { queueId: string }) {
   }, [queueId]);
 
   return (
-    <Card className="w-full mt-8 bg-background">
+    <Card className="mt-8 w-full bg-background">
       <CardHeader>
         <CardTitle>Webhook Response</CardTitle>
         <CardDescription>{data?.status || "Initializing..."}</CardDescription>
