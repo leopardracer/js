@@ -6,17 +6,7 @@ import type { Address } from "thirdweb";
 
 dotenv.config();
 
-const BASESEP_CHAIN_ID = "84532";
 const BACKEND_WALLET_ADDRESS = process.env.ENGINE_BACKEND_WALLET as string;
-
-console.log("Environment Variables:");
-console.log("CHAIN_ID:", BASESEP_CHAIN_ID);
-console.log("BACKEND_WALLET_ADDRESS:", BACKEND_WALLET_ADDRESS);
-console.log("ENGINE_URL:", process.env.ENGINE_URL);
-console.log(
-  "ACCESS_TOKEN:",
-  process.env.ENGINE_ACCESS_TOKEN ? "Set" : "Not Set",
-);
 
 const engine = new Engine({
   url: process.env.ENGINE_URL as string,
@@ -38,12 +28,6 @@ type DataEntry = {
 export async function POST(req: NextRequest) {
   try {
     const { data, contractAddress } = await req.json();
-
-    console.log("Received request with:", {
-      contractAddress,
-      dataLength: data.length,
-      sampleData: data[0],
-    });
 
     const receivers: Receiver[] = data.map((entry: DataEntry) => ({
       toAddress: entry.toAddress as Address,
@@ -75,7 +59,7 @@ export async function POST(req: NextRequest) {
       amounts: firstChunk.map((r) => r.amount),
       timestamp: Date.now(),
       chainId: Number.parseInt(chain),
-      network: "Base Sep" as const,
+      network: "Base Sepolia" as const,
     };
 
     // Start polling in the background

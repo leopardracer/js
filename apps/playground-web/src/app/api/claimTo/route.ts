@@ -8,15 +8,6 @@ dotenv.config();
 const BASESEP_CHAIN_ID = "84532";
 const BACKEND_WALLET_ADDRESS = process.env.ENGINE_BACKEND_WALLET as string;
 
-console.log("Environment Variables:");
-console.log("CHAIN_ID:", BASESEP_CHAIN_ID);
-console.log("BACKEND_WALLET_ADDRESS:", BACKEND_WALLET_ADDRESS);
-console.log("ENGINE_URL:", process.env.ENGINE_URL);
-console.log(
-  "ACCESS_TOKEN:",
-  process.env.ENGINE_ACCESS_TOKEN ? "Set" : "Not Set",
-);
-
 const engine = new Engine({
   url: process.env.ENGINE_URL as string,
   accessToken: process.env.ENGINE_ACCESS_TOKEN as string,
@@ -138,7 +129,6 @@ function startPolling(queueId: string) {
       if (Date.now() - startTime > maxPollingTime) {
         clearInterval(pollingInterval);
         pollingProcesses.delete(queueId);
-        console.log(`Polling timeout for queue ID: ${queueId}`);
         return;
       }
 
@@ -146,7 +136,6 @@ function startPolling(queueId: string) {
       if (result.status === "Mined" || result.status === "error") {
         clearInterval(pollingInterval);
         pollingProcesses.delete(queueId);
-        console.log("Final result:", result);
       }
     } catch (error) {
       console.error("Error in polling process:", error);
@@ -159,28 +148,19 @@ function startPolling(queueId: string) {
 }
 
 async function pollToMine(queueId: string): Promise<ClaimResult> {
-  console.log(`Polling for queue ID: ${queueId}`);
   const status = await engine.transaction.status(queueId);
-  console.log(`Current status: ${status.result.status}`);
 
   switch (status.result.status) {
     case "queued":
-      console.log("Transaction is queued");
       return { queueId, status: "Queued" };
     case "sent":
-      console.log("Transaction is submitted to the network");
       return { queueId, status: "Sent" };
     case "mined": {
-      console.log(
-        "Transaction mined! 🥳 ERC721 token has been claimed",
-        queueId,
-      );
       const transactionHash = status.result.transactionHash;
       const blockExplorerUrl =
         status.result.chainId === BASESEP_CHAIN_ID
           ? `https://base-sepolia.blockscout.com/tx/${transactionHash}`
           : "";
-      console.log("View transaction on the blockexplorer:", blockExplorerUrl);
       return {
         queueId,
         status: "Mined",

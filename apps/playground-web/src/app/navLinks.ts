@@ -89,14 +89,6 @@ export const navLinks: SidebarLink[] = [
         name: "Webhooks",
         href: "/engine/webhooks",
       },
-      // {
-      //   name: "Session Keys",
-      //   href: "/engine/account-abstraction/session-keys",
-      // },
-      // {
-      //   name: "Smart Backend Wallets",
-      //   href: "/engine/account-abstraction/smart-backend-wallets",
-      // },
     ],
   },
   {

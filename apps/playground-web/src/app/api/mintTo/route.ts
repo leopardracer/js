@@ -8,17 +8,6 @@ const CHAIN_ID = "84532";
 const CONTRACT_ADDRESS = "0x8CD193648f5D4E8CD9fD0f8d3865052790A680f6";
 const BACKEND_WALLET_ADDRESS = process.env.ENGINE_BACKEND_WALLET as string;
 
-// Add logging for environment variables
-console.log("Environment Variables:");
-console.log("CHAIN_ID:", CHAIN_ID);
-console.log("BACKEND_WALLET_ADDRESS:", BACKEND_WALLET_ADDRESS);
-console.log("CONTRACT_ADDRESS:", CONTRACT_ADDRESS);
-console.log("ENGINE_URL:", process.env.ENGINE_URL);
-console.log(
-  "ACCESS_TOKEN:",
-  process.env.ENGINE_ACCESS_TOKEN ? "Set" : "Not Set",
-);
-
 const engine = new Engine({
   url: process.env.ENGINE_URL as string,
   accessToken: process.env.ENGINE_ACCESS_TOKEN as string,
@@ -27,7 +16,6 @@ const engine = new Engine({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log("Request body:", body);
 
     const receiver = body.receiver || body.toAddress;
     const metadataWithSupply = body.metadataWithSupply;
@@ -38,12 +26,6 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-
-    console.log(
-      `Attempting to mint for receiver: ${receiver}, metadataWithSupply:`,
-      metadataWithSupply,
-    );
-    console.log("Using CONTRACT_ADDRESS:", CONTRACT_ADDRESS);
 
     const res = await engine.erc1155.mintTo(
       CHAIN_ID,
@@ -63,7 +45,7 @@ export async function POST(req: NextRequest) {
       amount: metadataWithSupply.supply || "1",
       timestamp: Date.now(),
       chainId: Number.parseInt(CHAIN_ID),
-      network: "Base Sep" as const,
+      network: "Base Sepolia" as const,
     };
 
     // Start polling in the background

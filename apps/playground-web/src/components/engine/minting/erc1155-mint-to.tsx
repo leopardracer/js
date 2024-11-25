@@ -20,7 +20,7 @@ interface ClaimTransactionResults {
   amount: string;
   timestamp?: number;
   chainId: number;
-  network: "Ethereum" | "Base Sep" | "OP Sep";
+  network: "Ethereum" | "Base Sepolia" | "OP Sepolia";
 }
 // Wasn't sure if this was needed, but added just in case.
 const resolveIpfsUrl = (ipfsUrl: string) => {
@@ -131,7 +131,7 @@ export function ERC1155MintTo() {
           toAddress: "",
           amount: "",
           chainId: 84532,
-          network: "Base Sep",
+          network: "Base Sepolia",
         },
       ]);
     } finally {
@@ -163,8 +163,12 @@ export function ERC1155MintTo() {
     <div className="flex flex-col items-center justify-center">
       <div className="flex w-full flex-col gap-8 md:flex-row">
         {/* Form Section */}
-        <div className="flex flex-col items-center justify-center">
-          <ConnectButton client={THIRDWEB_CLIENT} chain={baseSepolia} />
+        <div className="flex w-full flex-col items-center justify-center">
+          <div className="w-full max-w-md p-4">
+            <div className="w-full">
+              <ConnectButton client={THIRDWEB_CLIENT} chain={baseSepolia} />
+            </div>
+          </div>
           {account && (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">

@@ -29,7 +29,7 @@ interface ClaimTransactionResults {
   amount: string;
   timestamp?: number;
   chainId: number;
-  network: "Ethereum" | "Base Sep" | "OP Sep";
+  network: "Ethereum" | "Base Sepolia" | "OP Sepolia";
 }
 
 interface ClaimTransactionResultsProps {
@@ -66,7 +66,7 @@ export function ClaimTransactionResults({
     amount: "0.5",
     timestamp: Date.now() - 30 * 60 * 1000,
     chainId: 1,
-    network: "Base Sep",
+    network: "Base Sepolia",
     errorMessage: undefined,
   };
 
@@ -159,14 +159,14 @@ export function ClaimTransactionResults({
                   </TableCell>
                   <TableCell>
                     <span className="flex items-center gap-2">
-                      {result.network === "Base Sep" && (
+                      {result.network === "Base Sepolia" && (
                         <img
                           src="/BaseSep.png"
                           alt="Base"
                           className="h-4 w-4"
                         />
                       )}
-                      {result.network === "OP Sep" && (
+                      {result.network === "OP Sepolia" && (
                         <img
                           src="/OP.png"
                           alt="Optimism Sep"
@@ -193,9 +193,9 @@ export function ClaimTransactionResults({
                       // Keeping OP here for consistency. Will be adding a component for Optimism soon.
                       const getExplorerUrl = () => {
                         switch (result.network) {
-                          case "Base Sep":
+                          case "Base Sepolia":
                             return `https://base-sepolia.blockscout.com/address/${result.toAddress}?tab=tokens`;
-                          case "OP Sep":
+                          case "OP Sepolia":
                             return `https://optimism-sepolia.blockscout.com/address/${result.toAddress}?tab=tokens`;
                           case "Ethereum":
                             return `https://etherscan.io/address/${result.toAddress}?tab=tokens`;

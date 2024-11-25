@@ -23,7 +23,7 @@ interface ClaimTransactionResults {
   amount: string;
   timestamp?: number;
   chainId: number;
-  network: "Ethereum" | "Base Sep" | "OP Sep";
+  network: "Ethereum" | "Base Sepolia" | "OP Sepolia";
 }
 
 interface CsvRow {
@@ -38,7 +38,7 @@ interface BatchResult {
   status: "Queued" | "Sent" | "Mined" | "error";
   timestamp: number;
   chainId: number;
-  network: "Ethereum" | "Base Sep" | "OP Sep";
+  network: "Ethereum" | "Base Sepolia" | "OP Sepolia";
 }
 
 // Setting dummy addresses so no one gets spammed.
@@ -157,7 +157,7 @@ export function AirdropERC20() {
           toAddress: "",
           amount: "",
           chainId: 84532,
-          network: "Base Sep",
+          network: "Base Sepolia",
         },
       ]);
     } finally {
