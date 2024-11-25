@@ -1,12 +1,12 @@
 import { AirdropERC20 } from "@/components/engine/airdrop/airdrop-erc20";
 import ThirdwebProvider from "@/components/thirdweb-provider";
-import { APIHeader } from "../../../components/blocks/APIHeader";
+import { EngineAPIHeader } from "../../../components/blocks/EngineAPIHeader";
 // TODO: Get updated banner image and description.
 export default function Page() {
   return (
     <ThirdwebProvider>
       <main className="container px-0 pb-20">
-        <APIHeader
+        <EngineAPIHeader
           title="Airdrop"
           description={
             <>
@@ -15,7 +15,7 @@ export default function Page() {
               address!
             </>
           }
-          docsLink="https://thirdweb-engine.apidocumentation.com/reference#tag/erc20/POST/contract/{chain}/{contractAddress}/erc20/mint-batch-to"
+          docsLink="https://thirdweb-engine.apidocumentation.com/reference#tag/erc20/POST/contract/{chain}/{contractAddress}/erc20/mint-batch-to?utm_source=playground"
           heroLink="/airdrop.avif"
         />
 
