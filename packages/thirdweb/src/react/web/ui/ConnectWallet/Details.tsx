@@ -18,6 +18,7 @@ import { getLastAuthProvider } from "../../../../react/core/utils/storage.js";
 import { shortenAddress } from "../../../../utils/address.js";
 import { isContractDeployed } from "../../../../utils/bytecode/is-contract-deployed.js";
 import { formatNumber } from "../../../../utils/formatNumber.js";
+import { shortenLargeNumber } from "../../../../utils/shortenLargeNumber.js";
 import { webLocalStorage } from "../../../../utils/storage/webStorage.js";
 import { isEcosystemWallet } from "../../../../wallets/ecosystem/is-ecosystem-wallet.js";
 import type { Ecosystem } from "../../../../wallets/in-app/core/wallet/types.js";
@@ -86,7 +87,10 @@ import { fadeInAnimation } from "../design-system/animations.js";
 import { StyledButton } from "../design-system/elements.js";
 import { AccountAddress } from "../prebuilt/Account/address.js";
 import { AccountAvatar } from "../prebuilt/Account/avatar.js";
-import { AccountBalance } from "../prebuilt/Account/balance.js";
+import {
+  AccountBalance,
+  type AccountBalanceFormatParams,
+} from "../prebuilt/Account/balance.js";
 import { AccountBlobbie } from "../prebuilt/Account/blobbie.js";
 import { AccountName } from "../prebuilt/Account/name.js";
 import { AccountProvider } from "../prebuilt/Account/provider.js";
@@ -278,12 +282,12 @@ export const ConnectedWalletDetails: React.FC<{
             chain={walletChain}
             loadingComponent={<Skeleton height={fontSize.xs} width="70px" />}
             fallbackComponent={<Skeleton height={fontSize.xs} width="70px" />}
-            formatFn={formatBalanceOnButton}
             tokenAddress={
               props.detailsButton?.displayBalanceToken?.[
                 Number(walletChain?.id)
               ]
             }
+            showFiatValue="USD"
           />
         </Text>
       </Container>
@@ -380,11 +384,12 @@ function DetailsModal(props: {
             <AccountBalance
               fallbackComponent={<Skeleton height="1em" width="100px" />}
               loadingComponent={<Skeleton height="1em" width="100px" />}
-              formatFn={(num: number) => formatNumber(num, 9)}
               chain={walletChain}
               tokenAddress={
                 props.displayBalanceToken?.[Number(walletChain?.id)]
               }
+              formatFn={formatAccountBalanceForModal}
+              showFiatValue="USD"
             />
           </Text>
         </Text>
@@ -1006,8 +1011,18 @@ function DetailsModal(props: {
   );
 }
 
-function formatBalanceOnButton(num: number) {
-  return formatNumber(num, num < 1 ? 5 : 4);
+function formatAccountBalanceForModal(
+  props: AccountBalanceFormatParams,
+): string {
+  if (props.fiatBalance && props.fiatSymbol) {
+    // Need to keep them short to avoid UI overflow issues
+    const formattedTokenBalance = formatNumber(props.tokenBalance, 5);
+    const num = formatNumber(props.fiatBalance, 4);
+    const formattedFiatBalance = shortenLargeNumber(num);
+    return `${formattedTokenBalance} ${props.tokenSymbol} (${props.fiatSymbol}${formattedFiatBalance})`;
+  }
+  const formattedTokenBalance = formatNumber(props.tokenBalance, 9);
+  return `${formattedTokenBalance} ${props.tokenSymbol}`;
 }
 
 const WalletInfoButton = /* @__PURE__ */ StyledButton((_) => {
