@@ -24,6 +24,7 @@ import { useBuyWithFiatQuote } from "../../../../../core/hooks/pay/useBuyWithFia
 import { useActiveAccount } from "../../../../../core/hooks/wallets/useActiveAccount.js";
 import { invalidateWalletBalance } from "../../../../../core/providers/invalidateWalletBalance.js";
 import type { SupportedTokens } from "../../../../../core/utils/defaultTokens.js";
+import { ErrorState } from "../../../../wallets/shared/ErrorState.js";
 import { LoadingScreen } from "../../../../wallets/shared/LoadingScreen.js";
 import type { PayEmbedConnectOptions } from "../../../PayEmbed.js";
 import { ChainName } from "../../../components/ChainName.js";
@@ -104,6 +105,24 @@ export default function BuyScreen(props: BuyScreenProps) {
     props.client,
     isTestMode,
   );
+
+  if (supportedDestinationsQuery.isError) {
+    return (
+      <Container
+        style={{
+          minHeight: "350px",
+        }}
+        fullHeight
+        flex="row"
+        center="both"
+      >
+        <ErrorState
+          title="Something went wrong"
+          onTryAgain={supportedDestinationsQuery.refetch}
+        />
+      </Container>
+    );
+  }
 
   if (!supportedDestinationsQuery.data) {
     return <LoadingScreen />;

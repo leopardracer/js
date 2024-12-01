@@ -15,6 +15,15 @@ import baseBanner from "./temp-assets/base-banner.jpeg";
 import superchainCTABG from "./temp-assets/cta-bg-superchain.png";
 import xaiCTABg from "./temp-assets/cta-bg-xai-connect.png";
 import thirdwebCTA from "./temp-assets/cta-thirdweb.png";
+import etherlinkBanner from "./temp-assets/etherlinkBanner.png";
+import etherlinkCTA from "./temp-assets/etherlinkCTA.png";
+import hashfireBanner from "./temp-assets/hashfireBanner.png";
+import hashfireCTA from "./temp-assets/hashfireCTA.png";
+import laosBanner from "./temp-assets/laosBanner.jpg";
+import laosCTA from "./temp-assets/laosCTA.jpg";
+import liskBanner from "./temp-assets/liskBanner.png";
+import liskCTA from "./temp-assets/liskCTA.png";
+
 import lumiaCTA from "./temp-assets/lumia-cta.png";
 import lumiaBanner from "./temp-assets/lumiaBanner.png";
 import mantleBanner from "./temp-assets/mantle.png";
@@ -22,6 +31,8 @@ import plumeBanner from "./temp-assets/plumeBanner.png";
 import plumeCTA from "./temp-assets/plumeCTA.png";
 import rootStockBanner from "./temp-assets/rootstock-banner.png";
 import rootStockCTABG from "./temp-assets/rootstock-cta.png";
+import shidoBanner from "./temp-assets/shidoBanner.png";
+import shidoCta from "./temp-assets/shidoCta.png";
 import soneiumBanner from "./temp-assets/soneiumBanner.png";
 import superpositionBanner from "./temp-assets/superpositionBanner.png";
 import superpositionCTA from "./temp-assets/superpositionCTA.png";
@@ -290,6 +301,30 @@ const chainMetaRecord = {
     cta: OP_CTA,
     gasSponsored: true,
   },
+  //Etherlink Testnet
+  128123: {
+    headerImgUrl: etherlinkBanner.src,
+    about:
+      "Etherlink is powered by a Smart Rollup, an enshrined, optimistic rollup technology implemented by Tezos. Smoothly deploy any EVM codebase enabling seamless interaction across interoperable chains with subsecond block times and (nearly) free transactions.",
+    cta: {
+      backgroundImageUrl: etherlinkCTA.src,
+      title: "The fast, fair and (nearly) free L2",
+      buttonLink: "https://www.etherlink.com",
+      buttonText: "Learn More",
+    },
+  },
+  //Etherlink mainnet
+  42793: {
+    headerImgUrl: etherlinkBanner.src,
+    about:
+      "Etherlink is powered by a Smart Rollup, an enshrined, optimistic rollup technology implemented by Tezos. Smoothly deploy any EVM codebase enabling seamless interaction across interoperable chains with subsecond block times and (nearly) free transactions.",
+    cta: {
+      backgroundImageUrl: etherlinkCTA.src,
+      title: "The fast, fair and (nearly) free L2",
+      buttonLink: "https://www.etherlink.com",
+      buttonText: "Learn More",
+    },
+  },
   //Fuse
   122: {
     headerImgUrl: thirdwebBanner.src,
@@ -311,6 +346,55 @@ const chainMetaRecord = {
       backgroundImageUrl: thirdwebCTA.src,
       title: "",
       buttonLink: "https://gemuchain.io/",
+      buttonText: "Learn more",
+    },
+  },
+  //Hashfire
+  4227: {
+    headerImgUrl: hashfireBanner.src,
+    about:
+      "Imagine a world where every agreement is dynamic, verified, and automated. This is Hashfire—a platform that transforms how agreements are managed by leveraging blockchain technology to provide unparalleled security, automation, and transparency. With Hashfire, signing a document activates a powerful chain of actions, ensuring that agreements are secure, automated, and continuously verified.",
+    cta: {
+      backgroundImageUrl: hashfireCTA.src,
+      title:
+        "Transform contracts into secure, maximally enforceable agreements",
+      buttonLink: "https://www.hashfire.xyz/",
+      buttonText: "Learn more",
+    },
+  },
+  //LAOS Mainnet
+  6283: {
+    headerImgUrl: laosBanner.src,
+    about:
+      "LAOS is the first Layer 1 protocol connected without bridges to Ethereum, Polygon and other EVM-compatible chains, capable of offloading more than 20% of all their transactions. It enables unlimited NFT minting on these networks at lower costs, bypassing native gas fees. This approach eliminates the need for bridges or wrapped currencies while maintaining compatibility with existing DApps",
+    cta: {
+      backgroundImageUrl: laosCTA.src,
+      title: "Mint NFTs at Scale on any EVM Chain with LAOS",
+      buttonLink: "https://laosnetwork.io/build",
+      buttonText: "Learn more",
+    },
+  },
+  //Lisk Testnet
+  4202: {
+    headerImgUrl: liskBanner.src,
+    about:
+      "Lisk is focused on serving builders in high-growth markets like Africa and Southeast Asia. When you build on Lisk, you become part of the strongest Ethereum collective, alongside Coinbase, Sony, World, Kraken and Uniswap -- the OP Superchain.",
+    cta: {
+      backgroundImageUrl: liskCTA.src,
+      title: "Ready to reshape the world?",
+      buttonLink: "https://lisk.com",
+      buttonText: "Learn more",
+    },
+  },
+  //Lisk Mainnet
+  1135: {
+    headerImgUrl: liskBanner.src,
+    about:
+      "Lisk is focused on serving builders in high-growth markets like Africa and Southeast Asia. When you build on Lisk, you become part of the strongest Ethereum collective, alongside Coinbase, Sony, World, Kraken and Uniswap -- the OP Superchain.",
+    cta: {
+      backgroundImageUrl: liskCTA.src,
+      title: "Ready to reshape the world?",
+      buttonLink: "https://lisk.com",
       buttonText: "Learn more",
     },
   },
@@ -404,6 +488,18 @@ const chainMetaRecord = {
     about:
       "Soneium, an Ethereum layer-2 developed by Sony Block Solutions Labs. This versatile chain is a general-purpose blockchain platform that aims to evoke emotion, empower creativity, and meet diverse needs to go mainstream. Soneium will be simplifying blockchain experiences while empowering developers, creators, and communities. Built on accessibility, scalability, and efficiency, it aims to solve real-world problems across industries globally. Soneium will change the way we interact with the internet, opening up a world of innovative applications and unlimited potential for users worldwide.",
     cta: OP_CTA,
+  },
+  //Shido
+  9008: {
+    headerImgUrl: shidoBanner.src,
+    about:
+      "Shido Network is a superfast EVM chain with the lowest fees. Seamlessly interoperable with Cosmos, EVM and WASM. Bringing you the future of DeFi, unlocking unified liquidity through chain abstraction.",
+    cta: {
+      backgroundImageUrl: shidoCta.src,
+      title: "Endless scalability with Shido Network",
+      buttonLink: "https://shido.io/",
+      buttonText: "Learn more",
+    },
   },
 } satisfies Record<number, ExtraChainMetadata>;
 // END TEMPORARY

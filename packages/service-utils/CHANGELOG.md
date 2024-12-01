@@ -1,5 +1,17 @@
 # @thirdweb-dev/service-utils
 
+## 0.4.50
+
+### Patch Changes
+
+- [#5477](https://github.com/thirdweb-dev/js/pull/5477) [`6bd9683`](https://github.com/thirdweb-dev/js/commit/6bd968362ad29709a30ad10c68f72264fd7124d0) Thanks [@arcoraven](https://github.com/arcoraven)! - chore: Allow optional includeUsage (default: true)
+
+## 0.4.49
+
+### Patch Changes
+
+- [#5409](https://github.com/thirdweb-dev/js/pull/5409) [`e841bfe`](https://github.com/thirdweb-dev/js/commit/e841bfe0817e190d7ba3f17cc6d953ba0b60c64f) Thanks [@iuwqyir](https://github.com/iuwqyir)! - remove nebula scope
+
 ## 0.4.48
 
 ### Patch Changes

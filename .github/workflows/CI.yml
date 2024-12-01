@@ -87,8 +87,8 @@ jobs:
 
       - run: pnpm test
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Code Coverage
+        uses: codecov/codecov-action@v5
         with:
           directory: packages/
           flags: packages

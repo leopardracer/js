@@ -27,12 +27,13 @@ import { useTxNotifications } from "hooks/useTxNotifications";
 import { CircleAlertIcon } from "lucide-react";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
+import { type PreparedTransaction, sendAndConfirmTransaction } from "thirdweb";
 import {
-  type PreparedTransaction,
-  prepareContractCall,
-  sendAndConfirmTransaction,
-} from "thirdweb";
-import { MintableERC721, MintableERC1155 } from "thirdweb/modules";
+  MintableERC20,
+  MintableERC721,
+  MintableERC1155,
+} from "thirdweb/modules";
+import { grantRoles, hasAllRoles } from "thirdweb/modules";
 import { useReadContract } from "thirdweb/react";
 import type { NFTMetadataInputLimited } from "types/modified-types";
 import { parseAttributes } from "utils/parseAttributes";
@@ -79,10 +80,10 @@ function MintableModule(props: ModuleInstanceProps) {
       contract: contract,
     },
   );
-  const hasMinterRole = useReadContract({
+  const hasMinterRole = useReadContract(hasAllRoles, {
     contract: contract,
-    method: "function hasAllRoles(address user, uint256 roles) returns (bool)",
-    params: [ownerAccount?.address || "", MINTER_ROLE],
+    user: ownerAccount?.address || "",
+    roles: MINTER_ROLE,
   });
 
   const isBatchMetadataInstalled = !!props.allModuleContractInfo.find(
@@ -97,10 +98,10 @@ function MintableModule(props: ModuleInstanceProps) {
       }
 
       if (!hasMinterRole.data) {
-        const grantRoleTx = prepareContractCall({
+        const grantRoleTx = grantRoles({
           contract,
-          method: "function grantRole(address user, uint256 role) public",
-          params: [ownerAccount.address || "", MINTER_ROLE],
+          user: ownerAccount.address,
+          roles: MINTER_ROLE,
         });
 
         await sendAndConfirmTransaction({
@@ -110,11 +111,17 @@ function MintableModule(props: ModuleInstanceProps) {
       }
 
       let mintTx: PreparedTransaction;
-      if (isErc721) {
+      if (props.contractInfo.name === "MintableERC721") {
         mintTx = MintableERC721.mintWithRole({
           contract,
           to: values.recipient,
           nfts: [nft],
+        });
+      } else if (props.contractInfo.name === "MintableERC20") {
+        mintTx = MintableERC20.mintWithRole({
+          contract,
+          to: values.recipient,
+          quantity: String(values.amount),
         });
       } else if (values.useNextTokenId || values.tokenId) {
         mintTx = MintableERC1155.mintWithRole({
@@ -133,7 +140,7 @@ function MintableModule(props: ModuleInstanceProps) {
         transaction: mintTx,
       });
     },
-    [contract, ownerAccount, isErc721, hasMinterRole.data],
+    [contract, ownerAccount, hasMinterRole.data, props.contractInfo.name],
   );
 
   const update = useCallback(
@@ -142,9 +149,13 @@ function MintableModule(props: ModuleInstanceProps) {
         throw new Error("Not an owner account");
       }
 
-      const setSaleConfig = isErc721
-        ? MintableERC721.setSaleConfig
-        : MintableERC1155.setSaleConfig;
+      const setSaleConfig =
+        props.contractInfo.name === "MintableERC721"
+          ? MintableERC721.setSaleConfig
+          : props.contractInfo.name === "MintableERC20"
+            ? MintableERC20.setSaleConfig
+            : MintableERC1155.setSaleConfig;
+
       const setSaleConfigTx = setSaleConfig({
         contract: contract,
         primarySaleRecipient: values.primarySaleRecipient,
@@ -155,7 +166,7 @@ function MintableModule(props: ModuleInstanceProps) {
         transaction: setSaleConfigTx,
       });
     },
-    [contract, ownerAccount, isErc721],
+    [contract, ownerAccount, props.contractInfo.name],
   );
 
   return (
@@ -166,7 +177,7 @@ function MintableModule(props: ModuleInstanceProps) {
       updatePrimaryRecipient={update}
       mint={mint}
       isOwnerAccount={!!ownerAccount}
-      isErc721={isErc721}
+      name={props.contractInfo.name}
       isBatchMetadataInstalled={isBatchMetadataInstalled}
       contractChainId={contract.chain.id}
     />
@@ -180,7 +191,7 @@ export function MintableModuleUI(
     isOwnerAccount: boolean;
     updatePrimaryRecipient: (values: UpdateFormValues) => Promise<void>;
     mint: (values: MintFormValues) => Promise<void>;
-    isErc721: boolean;
+    name: string;
     isBatchMetadataInstalled: boolean;
     contractChainId: number;
   },
@@ -202,7 +213,7 @@ export function MintableModuleUI(
                 {props.isOwnerAccount && (
                   <MintNFTSection
                     mint={props.mint}
-                    isErc721={props.isErc721}
+                    name={props.name}
                     isBatchMetadataInstalled={props.isBatchMetadataInstalled}
                     contractChainId={props.contractChainId}
                   />
@@ -326,7 +337,7 @@ const mintFormSchema = z.object({
 
 function MintNFTSection(props: {
   mint: (values: MintFormValues) => Promise<void>;
-  isErc721: boolean;
+  name: string;
   isBatchMetadataInstalled: boolean;
   contractChainId: number;
 }) {
@@ -356,7 +367,11 @@ function MintNFTSection(props: {
 
   const onSubmit = async () => {
     const values = form.getValues();
-    if (!props.isErc721 && !values.useNextTokenId && !values.tokenId) {
+    if (
+      props.name === "MintableERC1155" &&
+      !values.useNextTokenId &&
+      !values.tokenId
+    ) {
       form.setError("tokenId", { message: "Token ID is required" });
       return;
     }
@@ -456,7 +471,7 @@ function MintNFTSection(props: {
               )}
             />
 
-            {!props.isErc721 && (
+            {props.name !== "MintableERC721" && (
               <FormField
                 control={form.control}
                 name="amount"
@@ -471,7 +486,7 @@ function MintNFTSection(props: {
               />
             )}
 
-            {!props.isErc721 && (
+            {props.name === "MintableERC1155" && (
               <div className="relative flex-1">
                 <FormField
                   control={form.control}

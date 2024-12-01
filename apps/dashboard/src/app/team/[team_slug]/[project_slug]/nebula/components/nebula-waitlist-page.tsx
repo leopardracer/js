@@ -26,20 +26,20 @@ export async function NebulaWaitListPage(props: {
 
   // if not already on the waitlist, join the waitlist
   if (!nebulaWaitList.onWaitlist) {
-    const joined = await joinTeamWaitlist({
+    const res = await joinTeamWaitlist({
       scope: "nebula",
       teamSlug: team.slug,
     }).catch(() => null);
 
     // this should never happen
-    if (!joined) {
+    if (!res?.success) {
       return (
         <UnexpectedErrorPage message="Failed to join Nebula waitlist status for your team" />
       );
     }
   }
 
-  return <NebulaWaitListPageUI />;
+  return <NebulaWaitListPageUI teamId={team.id} />;
 }
 
 function UnexpectedErrorPage(props: {
